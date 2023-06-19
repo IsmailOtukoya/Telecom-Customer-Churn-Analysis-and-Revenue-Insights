@@ -1,0 +1,138 @@
+SELECT *
+FROM telecom_db.cleanedandanalyzed_dataset
+LIMIT 10;
+
+#Query to calculate total numbers of  the customers
+SELECT COUNT(*) AS total_customers
+FROM telecom_db.cleanedandanalyzed_dataset;
+
+#Query to analyze churn rate
+SELECT
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS churned_customers,
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) / COUNT(*) AS churn_rate
+FROM
+     cleanedandanalyzed_dataset;
+#I got a churn rate of 0.2886 which means it is a 28.86% churn rate
+
+#Queries to analyze churn rate based on Gender,offer, internet service, tenure
+SELECT
+    Gender,
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS churned_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) / COUNT(*) AS churn_rate
+FROM
+    cleanedandanalyzed_dataset
+GROUP BY
+    Gender;
+#We can see that both genders have a balanced churn rate
+
+SELECT
+    Offer,
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS churned_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) / COUNT(*) AS churn_rate
+FROM
+    cleanedandanalyzed_dataset
+GROUP BY
+    Offer;
+#from the reults we can see that Customers with Offer E have a relatively high rate in comparison to customers with other offers, it is over 50% churn rate
+#A deeper look should be taken into offer E 
+
+
+SELECT
+    `Internet Service`,
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS churned_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) / COUNT(*) AS churn_rate
+FROM
+	cleanedandanalyzed_dataset
+GROUP BY
+    `Internet Service`;
+#It can be seen that customers with Internet Service have a higher churn rate than customers without, but this would be due to the ratio of amount of customers with Internet Service t that of customers without.
+
+SELECT
+    CASE
+        WHEN `Tenure in Months` <= 6 THEN '0-6 months'
+        WHEN `Tenure in Months` <= 12 THEN '6-12 months'
+        WHEN `Tenure in Months` <= 24 THEN '12-24 months'
+        ELSE '24+ months'
+    END AS tenure_group,
+    COUNT(*) AS total_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) AS churned_customers,
+    SUM(CASE WHEN `Customer Status` = 'Churned' THEN 1 ELSE 0 END) / COUNT(*) AS churn_rate
+FROM
+	cleanedandanalyzed_dataset
+#It can be seen that cusyomers with a tenure of 0-6 months have a relatively high churn rate and as the tunure range increases the churn rate reduces. i.e 0-6 montha have a churn rate of 57% while 24+ months tenure group has a churn rate of 15.44%.
+GROUP BY
+    tenure_group;
+
+#Distribution of customers by offer type
+SELECT Offer, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY Offer;
+
+#Getting the top 10 cities with the most customers
+SELECT City, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY City
+ORDER BY total_customers DESC
+LIMIT 10;
+
+#Getting the average tenure of the customers
+SELECT AVG(`Tenure in Months`) AS avg_tenure
+FROM cleanedandanalyzed_dataset;
+
+#Distribution of customers by age group
+SELECT `Age Group`, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY `Age Group`;
+
+#Identyfying the most common payong methods
+SELECT `Payment Method`, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY `Payment Method`
+ORDER BY total_customers DESC;
+
+#distribution on customers by gender and marital Status
+SELECT Gender, Married, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY Gender, Married;
+
+#distribution of customers by paperless billing and payment methods
+SELECT `Paperless Billing`, `Payment Method`, COUNT(*) AS total_customers
+FROM cleanedandanalyzed_dataset
+GROUP BY `Paperless Billing`, `Payment Method`;
+
+#Getting customers with the Highest number of referrals
+SELECT `Customer ID`, `Number of Referrals`
+FROM cleanedandanalyzed_dataset
+ORDER BY `Number of Referrals` DESC
+LIMIT 10;
+
+#Getting customers that have online security and online backuo services 
+SELECT COUNT(*) AS NumCustomers
+FROM cleanedandanalyzed_dataset
+WHERE `Online Security` = 'Yes' AND `Online Backup` = 'Yes';
+
+#Subqueries
+#Finding customers with the highest total charges
+SELECT `Customer ID`, `Total Charges`
+FROM cleanedandanalyzed_dataset
+WHERE `Total Charges Per Month` = (SELECT MAX(`Total Charges Per Month`) FROM cleanedandanalyzed_dataset);
+
+#Getting customers with tenure that is above the average tenure
+SELECT `Customer ID`, `Tenure in Months`
+FROM cleanedandanalyzed_dataset
+WHERE `Tenure in Months` > (SELECT AVG(`Tenure in Months`) FROM cleanedandanalyzed_dataset);
+
+#Calculating the average monthly charge for each contract type
+SELECT Contract, AVG(`Monthly Charge`) AS AvgMonthlyCharge
+FROM cleanedandanalyzed_dataset
+GROUP BY Contract;
+
+#Getting the total revenue generated by each payment method
+SELECT `Payment Method`, SUM(`Total Revenue`) AS TotalRevenue
+FROM cleanedandanalyzed_dataset
+GROUP BY `Payment Method`;
+
